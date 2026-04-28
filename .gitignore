@@ -1,0 +1,4 @@
+node_modules/
+.insighta/
+.env
+server/*
