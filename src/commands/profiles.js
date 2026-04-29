@@ -31,7 +31,7 @@ async function handleProfilesCommand(subcommand, args) {
 
 async function handleList(args) {
   const params = new URLSearchParams()
-  let sortBy = null, order = null
+  let sortBy = null, order = null, maxAge = null, minAge = null, ageGroup = null, gender = null, country = null 
   for (let i = 0; i < args.length; i++) {
     const key = args[i]
     const value = args[i+1]
@@ -43,7 +43,23 @@ async function handleList(args) {
       } else if (paramKey === 'order') {
         order = value
         i++
-      } else {
+      } else if (paramKey === 'max-age') {
+        maxAge = value
+        i++
+      } else if (paramKey === 'min-age') {
+        minAge = value
+        i++
+      } else if (paramKey === 'age-group') {
+        ageGroup = value
+        i++
+      } else if (paramKey === 'gender') {
+        gender = value
+        i++
+      } else if (paramKey === 'country') {
+        country = value
+        i++
+      }
+       else {
         params.append(paramKey, value)
         i++
       }
@@ -51,6 +67,11 @@ async function handleList(args) {
   }
   if (sortBy) params.append('sort_by', sortBy)
   if (order) params.append('order', order)
+  if (maxAge) params.append('max_age', maxAge)
+  if (minAge) params.append('min_age', minAge)
+  if (ageGroup) params.append('age_group', ageGroup)
+  if(gender) params.append ('gender', gender)
+  if (country) params.append('country_id', country)
   if (!params.has('page')) params.append('page', '1')
   if (!params.has('limit')) params.append('limit', '10')
 
@@ -186,9 +207,12 @@ async function handleCreate(args) {
 async function handleExport(args) {
   let format = 'csv'
   let output = null
+  let sortBy = null, order = null, maxAge = null, minAge = null, ageGroup = null, gender = null, country = null
   const params = new URLSearchParams()
 
   for (let i = 0; i < args.length; i++) {
+    const key = args[i]
+    const value = args[i+1]
     if (args[i] === '--format') {
       format = args[++i]
     } else if (args[i] === '--output') {
@@ -197,6 +221,11 @@ async function handleExport(args) {
       let paramKey = args[i].slice(2)
       const value = args[++i]
       if (paramKey === 'country') paramKey = 'country_id'
+      else if (paramKey === 'sort-by') paramKey = 'sort_by'
+      else if(paramKey === 'age-group') paramKey = 'age_group'
+      else if (paramKey === 'max-age') paramKey = 'max_age'
+      else if (paramKey === 'min-age') paramKey = 'min_age'
+
       params.append(paramKey, value)
     }
   }
@@ -227,9 +256,9 @@ function printProfilesHelp() {
 Profile commands:
   insighta profiles list [--gender m|f] [--age_group X] [--country_id XX] [--min_age N] [--max_age N] [--sort_by age|created_at|gender_probability] [--order asc|desc] [--page N] [--limit N]
   insighta profiles get <id>
-  insighta profiles search --q "natural language" [--page N] [--limit N]
+  insighta profiles search "natural language" [--page N] [--limit N]
   insighta profiles create --name "Full Name"  (admin only)
-  insighta profiles export --q "natural language" [--format csv] [--output filename.csv]
+  insighta profiles export [--format csv] filters:([--gender m|f] [--age_group X] [--country_id XX] [--min_age N] [--max_age N] [--sort_by age|created_at|gender_probability] [--order asc|desc] [--gender ] )[--output filename.csv]
   `)
 }
 

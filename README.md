@@ -104,13 +104,19 @@ insighta profiles list
 insighta profiles list --page 2
 insighta profiles list --limit 20
 insighta profiles list --sort-by created_at --order desc
+insighta profiles list --gender male --country NG
 ```
 
 Options:
 - `--page <number>` - Page number (default: 1)
 - `--limit <number>` - Items per page (default: 10)
-- `--sort-by <field>` - Sort by field (e.g., created_at, name)
-- `--order <asc|desc>` - Sort order
+- `--sort-by <field>` - Sort by field (created_at, name, age, gender_probability)
+- `--order <asc|desc>` - Sort order (default: desc)
+- `--gender <m|f>` - Filter by gender
+- `--country <code>` - Filter by country code (e.g., NG, US)
+- `--age-group <X>` - Filter by age group
+- `--min-age <N>` - Minimum age
+- `--max-age <N>` - Maximum age
 
 #### Get Single Profile
 
@@ -121,7 +127,8 @@ insighta profiles get <profile-id>
 #### Search Profiles
 
 ```bash
-insighta profiles search --q "search query"
+insighta profiles search "your natural language query"
+insighta profiles search "males from Nigeria" --page 1 --limit 10
 ```
 
 #### Create Profile
@@ -130,13 +137,38 @@ insighta profiles search --q "search query"
 insighta profiles create --name "John Doe"
 ```
 
+**Note:** Only admin users can create profiles.
+
 #### Export Profiles
 
 ```bash
-insighta profiles export --q "query" --output profiles.csv
+# Export all profiles to CSV
+insighta profiles export --output profiles.csv
+
+# Export with filters
+insighta profiles export --format csv --gender male --country NG --output males_ng.csv
+
+# Export with age filters
+insighta profiles export --min-age 18 --max-age 35 --output young_profiles.csv
+
+# Export with sorting
+insighta profiles export --sort-by created_at --order desc --output recent.csv
 ```
 
+Options:
+- `--format <csv>` - Output format (default: csv)
+- `--output  <file>` - Output filename
+- `--gender <m|f>` - Filter by gender
+- `--country <code>` - Filter by country code
+- `--age-group <X>` - Filter by age group
+- `--min-age <N>` - Minimum age
+- `--max-age <N>` - Maximum age
+- `--sort-by <field>` - Sort by field
+- `--order <asc|desc>` - Sort order
+
 ## Command Reference
+
+### Authentication
 
 | Command | Description |
 |---------|-------------|
@@ -145,9 +177,31 @@ insighta profiles export --q "query" --output profiles.csv
 | `insighta logout` | Logout and clear credentials |
 | `insighta whoami` | Show current user info |
 | `insighta refresh` | Refresh access token |
-| `insighta profiles list` | List all profiles |
+
+### Profiles
+
+| Command | Description |
+|---------|-------------|
+| `insighta profiles list [options]` | List profiles with filters |
 | `insighta profiles get <id>` | Get profile by ID |
-| `insighta profiles search --q <query>` | Search profiles |
+| `insighta profiles search <query>` | Search profiles |
+| `insighta profiles create --name <name>` | Create profile (admin only) |
+| `insighta profiles export [options]` | Export profiles to CSV |
+
+### Profile Options
+
+#### List & Export Filters
+- `--gender <m|f>` - Filter by gender
+- `--country <code>` - Filter by country code
+- `--age-group <X>` - Filter by age group
+- `--min-age <N>` - Minimum age
+- `--max-age <N>` - Maximum age
+- `--sort-by <field>` - Sort by (created_at, name, age, gender_probability)
+- `--order <asc|desc>` - Sort order
+
+#### Pagination
+- `--page <number>` - Page number
+- `--limit <number>` - Items per page
 | `insighta profiles create --name <name>` | Create new profile |
 | `insighta profiles export --q <query> --output <file>` | Export profiles to CSV |
 
