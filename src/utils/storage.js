@@ -1,12 +1,14 @@
 const fs = require('fs')
 const { get } = require('http')
 const path = require('path')
+require('dotenv').config()
 
 const CONFIG_DIR = path.join(process.env.HOME || process.env.USERPROFILE, '.insighta')
 const CONFIG_FILE = path.join(CONFIG_DIR, 'credentials.json')
 
-// Default API URL - can be overridden via environment or config
-const DEFAULT_API_URL = 'http://localhost:3000/api'
+// Default API URL - production by default
+// To use local dev server, set API_URL=http://localhost:3000/api in .env
+const DEFAULT_API_URL = process.env.API_URL || 'https://ebebo-stage3.vercel.app/api'
 
 function ensureConfigDir() {
   if (!fs.existsSync(CONFIG_DIR)) {

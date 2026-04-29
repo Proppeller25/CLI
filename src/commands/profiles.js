@@ -117,12 +117,12 @@ async function handleSearch(args) {
   let query = ''
   let page = 1, limit = 10
   for (let i = 0; i < args.length; i++) {
-    if (args[i] === '--q') query = args[++i]
-    else if (args[i] === '--page') page = parseInt(args[++i])
+    if (args[i] === '--page') page = parseInt(args[++i])
     else if (args[i] === '--limit') limit = parseInt(args[++i])
+    else query += args[i] + ' '
   }
   if (!query) {
-    console.error('Usage: insighta profiles search --q "your natural language query" [--page 1] [--limit 10]')
+    console.error('Usage: insighta profiles search  ["your natural language query"] [--page 1] [--limit 10]')
     return
   }
   const params = new URLSearchParams({ q: query, page, limit })

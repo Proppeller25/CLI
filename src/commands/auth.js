@@ -49,8 +49,11 @@ async function loginWithPat(token) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token })
     })
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(`HTTP ${response.status}: ${errorText}`)
+    }
     const data = await response.json()
-    if (!response.ok) throw new Error(data.message || 'Unknown error')
     setAuth({
       accessToken: data.access_token,
       refreshToken: data.refresh_token,
@@ -74,8 +77,7 @@ async function loginWithOAuth() {
   const codeVerifier = crypto.randomBytes(32).toString('base64url')
   const codeChallenge = crypto.createHash('sha256').update(codeVerifier).digest('base64url')
 
-  console.log(`[DEBUG] Generated state: ${state}`)
-  console.log(`[DEBUG] Code verifier (first 10): ${codeVerifier.slice(0,10)}...`)
+  // Generated state and PKCE for OAuth security
 
   // 2. Build GitHub OAuth URL
   const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || 'YOUR_CLIENT_ID_HERE'
@@ -89,7 +91,6 @@ async function loginWithOAuth() {
   })
   if (!state) throw new Error('State is empty')
   const authUrl = `https://github.com/login/oauth/authorize?${params.toString()}`
-  console.log(`[DEBUG] Auth URL: ${authUrl}`)
 
   // 3. Ensure no previous server is left hanging
   let server = null
@@ -111,11 +112,9 @@ async function loginWithOAuth() {
 
   const callbackPromise = new Promise((resolve, reject) => {
     server.on('request', (req, res) => {
-      console.log(`[DEBUG] Received request: ${req.url}`)
       const url = new URL(req.url, redirectUri)
       const returnedState = url.searchParams.get('state')
       const code = url.searchParams.get('code')
-      console.log(`[DEBUG] returnedState: ${returnedState}, expected: ${state}`)
       if (returnedState !== state) {
         console.error(`State mismatch! Expected "${state}", got "${returnedState}"`)
         res.writeHead(400, { 'Content-Type': 'text/html' })
@@ -175,6 +174,7 @@ async function loginWithOAuth() {
       redirect_uri: redirectUri
     })
   })
+  
   const tokenData = await exchangeRes.json()
   if (!exchangeRes.ok) {
     console.error(`Token exchange failed: ${tokenData.message}`)
@@ -195,7 +195,6 @@ async function openBrowser(url) {
     await open.default(url);
     return true;
   } catch (err) {
-    console.log(`[DEBUG] Browser open failed: ${err.message}`);
     console.log(`\nPlease manually open this URL in your browser:\n${url}\n`);
     return false;
   }
